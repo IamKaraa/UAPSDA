@@ -4,143 +4,135 @@ import tkinter as tk
 from tkinter import messagebox, filedialog
 from tkinter import font as tkfont  
 
-# Class Jadwal
-class Jadwal:
-    def __init__(self, id, kegiatan, tanggal, waktu, deskripsi):
+# Class data
+class Data:
+    def __init__(self, id, uang, tanggal, deskripsi):
         self.id = id
-        self.kegiatan = kegiatan
+        self.uang = uang
         self.tanggal = tanggal
-        self.waktu = waktu
         self.deskripsi = deskripsi
 
     def __repr__(self):
-        return f"{self.id}: {self.kegiatan} on {self.tanggal} at {self.waktu} - {self.deskripsi}"
+        return f"{self.id}: {self.uang} on {self.tanggal} at {self.deskripsi}"
 
-# Class untuk mengelola jadwal
-class JadwalManager:
+# Class untuk mengelola Data
+class DataManager:
     def __init__(self):
-        self.jadwals = []
+        self.datas = []
         self.counter = 1
 
-    def tambah_jadwal(self, kegiatan, tanggal, waktu, deskripsi):
-        new_jadwal = Jadwal(self.counter, kegiatan, tanggal, waktu, deskripsi)
-        self.jadwals.append(new_jadwal)
+    def tambah_data(self, uang, tanggal, deskripsi):
+        new_data = Data(self.counter, uang, tanggal, deskripsi)
+        self.datas.append(new_data)
         self.counter += 1
-        print(f"Jadwal '{kegiatan}' berhasil ditambahkan.")
+        print(f"'{uang}' berhasil ditambahkan.")
 
-    def lihat_jadwal(self):
-        for jadwal in sorted(self.jadwals, key=lambda x: (x.tanggal, x.waktu)):
-            print(jadwal)
+    def lihat_data(self):
+        for data in sorted(self.datas, key=lambda x: (x.tanggal)):
+            print(data)
 
-    def update_jadwal(self, id, kegiatan=None, tanggal=None, waktu=None, deskripsi=None):
-        for jadwal in self.jadwals:
-            if jadwal.id == id:
-                if kegiatan: jadwal.kegiatan = kegiatan
-                if tanggal: jadwal.tanggal = tanggal
-                if waktu: jadwal.waktu = waktu
-                if deskripsi: jadwal.deskripsi = deskripsi
-                print(f"Jadwal dengan ID {id} berhasil diupdate.")
+    def update_data(self, id, uang=None, tanggal=None, deskripsi=None):
+        for data in self.datas:
+            if data.id == id:
+                if uang: data.uang = uang
+                if tanggal: data.tanggal = tanggal
+                if deskripsi: data.deskripsi = deskripsi
+                print(f"Data dengan ID {id} berhasil diupdate.")
                 return
-        print(f"Jadwal dengan ID {id} tidak ditemukan.")
+        print(f"Data dengan ID {id} tidak ditemukan.")
 
-    def hapus_jadwal(self, id):
-        initial_length = len(self.jadwals)
-        self.jadwals = [jadwal for jadwal in self.jadwals if jadwal.id != id]
-        if len(self.jadwals) < initial_length:
-            print(f"Jadwal dengan ID {id} berhasil dihapus.")
+    def hapus_data(self, id):
+        initial_length = len(self.datas)
+        self.datas = [data for data in self.datas if data.id != id]
+        if len(self.datas) < initial_length:
+            print(f"Data dengan ID {id} berhasil dihapus.")
         else:
-            print(f"Jadwal dengan ID {id} tidak ditemukan.")
+            print(f"Data dengan ID {id} tidak ditemukan.")
 
-    def cari_jadwal(self, keyword):
+    def cari_data(self, keyword):
         hasil = [
-            jadwal for jadwal in self.jadwals
-            if keyword.lower() in jadwal.kegiatan.lower()
+            data for data in self.datas
+            if keyword.lower() in data.deskripsi.lower()
         ]
         return hasil
 
-    def impor_jadwal_csv(self, filename):
+    def impor_data_csv(self, filename):
         try:
             with open(filename, mode='r') as file:
                 csv_reader = csv.DictReader(file)
                 for row in csv_reader:
-                    self.tambah_jadwal(row['kegiatan'], row['tanggal'], row['waktu'], row['deskripsi'])
+                    self.tambah_data(row['uang'], row['tanggal'], row['deskripsi'])
             print("Impor dari CSV berhasil.")
         except Exception as e:
             print(f"Error: {e}")
 
 # GUI Tkinter
 def show_gui():
-    def tambah_jadwal():
-        kegiatan = entry_kegiatan.get()
+    def tambah_data():
+        uang = entry_uang.get()
         tanggal = entry_tanggal.get()
-        waktu = entry_waktu.get()
         deskripsi = entry_deskripsi.get()
-        if kegiatan and tanggal and waktu and deskripsi:
-            manager.tambah_jadwal(kegiatan, tanggal, waktu, deskripsi)
-            messagebox.showinfo("Sukses", "Jadwal berhasil ditambahkan!")
-            lihat_jadwal()  # Refresh jadwal list after adding
+        if uang and tanggal and deskripsi:
+            manager.tambah_data(uang, tanggal, deskripsi)
+            messagebox.showinfo("Sukses", "Data berhasil ditambahkan!")
+            lihat_data()  # Refresh data list after adding
         else:
             messagebox.showwarning("Peringatan", "Semua kolom harus diisi!")
 
-    def lihat_jadwal():
+    def lihat_data():
         output_text.delete('1.0', tk.END)
-        jadwals = sorted(manager.jadwals, key=lambda x: (x.tanggal, x.waktu))
-        for jadwal in jadwals:
-            output_text.insert(tk.END, f"{jadwal}\n")
+        datas = sorted(manager.datas, key=lambda x: (x.tanggal,))
+        for data in datas:
+            output_text.insert(tk.END, f"{data}\n")
 
-    def cari_jadwal():
+    def cari_data():
         keyword = entry_cari.get()
-        hasil = manager.cari_jadwal(keyword)
+        hasil = manager.cari_data(keyword)
         output_text.delete('1.0', tk.END)
         if hasil:
-            for jadwal in hasil:
-                output_text.insert(tk.END, f"{jadwal}\n")
+            for data in hasil:
+                output_text.insert(tk.END, f"{data}\n")
         else:
-            output_text.insert(tk.END, "Jadwal tidak ditemukan.")
+            output_text.insert(tk.END, "Data tidak ditemukan.")
 
-    def hapus_jadwal():
+    def hapus_data():
         try:
-            id_jadwal = int(entry_hapus.get())
-            manager.hapus_jadwal(id_jadwal)
-            messagebox.showinfo("Sukses", f"Jadwal dengan ID {id_jadwal} berhasil dihapus!")
-            lihat_jadwal()  # Refresh jadwal list after deleting
+            id_data = int(entry_hapus.get())
+            manager.hapus_data(id_data)
+            messagebox.showinfo("Sukses", f"Data dengan ID {id_data} berhasil dihapus!")
+            lihat_data()  # Refresh data list after deleting
         except ValueError:
-            messagebox.showerror("Error", "ID Jadwal harus berupa angka.")
+            messagebox.showerror("Error", "ID Data harus berupa angka.")
 
-    def update_jadwal_popup():
-        def update_jadwal():
+    def update_data_popup():
+        def update_data():
             try:
-                id_jadwal = int(entry_id_update.get())
-                kegiatan = entry_kegiatan_update.get()
+                id_data = int(entry_id_update.get())
+                uang = entry_uang_update.get()
                 tanggal = entry_tanggal_update.get()
-                waktu = entry_waktu_update.get()
                 deskripsi = entry_deskripsi_update.get()
-                manager.update_jadwal(id_jadwal, kegiatan, tanggal, waktu, deskripsi)
-                messagebox.showinfo("Sukses", f"Jadwal dengan ID {id_jadwal} berhasil diupdate!")
-                lihat_jadwal()  # Refresh jadwal list after updating
+                manager.update_data(id_data, uang, tanggal, deskripsi)
+                messagebox.showinfo("Sukses", f"Data dengan ID {id_data} berhasil diupdate!")
+                lihat_data()  # Refresh data list after updating
                 update_window.destroy()  # Close the update window
             except ValueError:
-                messagebox.showerror("Error", "ID Jadwal harus berupa angka.")
+                messagebox.showerror("Error", "ID Data harus berupa angka.")
 
         update_window = tk.Toplevel(root)
-        update_window.title("Update Jadwal")
+        update_window.title("Update Data")
         update_window.configure(bg="#273c75")
 
-        tk.Label(update_window, text="Update Jadwal (ID):", bg="#273c75", fg="#ffffff").grid(row=0, column=0, padx=5, pady=5)
+        tk.Label(update_window, text="Update Data (ID):", bg="#273c75", fg="#ffffff").grid(row=0, column=0, padx=5, pady=5)
         entry_id_update = tk.Entry(update_window, bg="#ffffff", fg="#000000")
         entry_id_update.grid(row=0, column=1, padx=5, pady=5)
 
-        tk.Label(update_window, text="Kegiatan:", bg="#273c75", fg="#ffffff").grid(row=1, column=0, padx=5, pady=5)
-        entry_kegiatan_update = tk.Entry(update_window, bg="#ffffff", fg="#000000")
-        entry_kegiatan_update.grid(row=1, column=1, padx=5, pady=5)
+        tk.Label(update_window, text="Uang:", bg="#273c75", fg="#ffffff").grid(row=1, column=0, padx=5, pady=5)
+        entry_uang_update = tk.Entry(update_window, bg="#ffffff", fg="#000000")
+        entry_uang_update.grid(row=1, column=1, padx=5, pady=5)
 
         tk.Label(update_window, text="Tanggal:", bg="#273c75", fg="#ffffff").grid(row=2, column=0, padx=5, pady=5)
         entry_tanggal_update = tk.Entry(update_window, bg="#ffffff", fg="#000000")
         entry_tanggal_update.grid(row=2, column=1, padx=5, pady=5)
-
-        tk.Label(update_window, text="Waktu:", bg="#273c75", fg="#ffffff").grid(row=3, column=0, padx=5, pady=5)
-        entry_waktu_update = tk.Entry(update_window, bg="#ffffff", fg="#000000")
-        entry_waktu_update.grid(row=3, column=1, padx=5, pady=5)
 
         tk.Label(update_window, text="Deskripsi:", bg="#273c75", fg="#ffffff").grid(row=4, column=0, padx=5, pady=5)
         entry_deskripsi_update = tk.Entry(update_window, bg="#ffffff", fg="#000000")
@@ -148,72 +140,88 @@ def show_gui():
 
         tk.Button(update_window,
                   text="Update",
-                  command=update_jadwal,
+                  command=update_data,
                   bg="#f39c12",
                   fg="#ffffff").grid(row=5, column=1, padx=5, pady=5)
 
     def import_csv():
         filename = filedialog.askopenfilename(title="Pilih file CSV",
-                                              filetypes=(("CSV files", ".csv"), ("All files", ".*")))
+                                          filetypes=(("CSV files", ".csv"), ("All files", ".*")))
         if filename:
-            manager.impor_jadwal_csv(filename)
-            messagebox.showinfo("Sukses", "Impor dari CSV berhasil!")
-            lihat_jadwal()  # Refresh jadwal list after import
+            try:
+                with open(filename, mode='r') as file:
+                    csv_reader = csv.DictReader(file)
+                    for row in csv_reader:
+                        manager.tambah_data(row['uang'], row['tanggal'], row['deskripsi'])
+                messagebox.showinfo("Sukses", "Impor dari CSV berhasil!")
+                lihat_data()  # Refresh data list after import
+            except Exception as e:
+                messagebox.showerror("Error", str(e))
 
-    manager = JadwalManager()
+    def export_csv():
+        filename = "transactions.csv"
+        fieldnames = ['tanggal', 'deskripsi', 'uang']
+
+        with open(filename, 'w', newline='') as file:
+            writer = csv.DictWriter(file, fieldnames=fieldnames)
+            writer.writeheader()
+            for data in manager.datas:
+                writer.writerow({'tanggal': data.tanggal, 'deskripsi': data.deskripsi, 'uang': data.uang})
+
+        messagebox.showinfo("Sukses", "Expor ke CSV berhasil!")
+        lihat_data()  # Refresh data list after export
+
+    manager = DataManager()
 
     root = tk.Tk()
-    root.title("Sistem Manajemen keuangan Pribadi (Oleh Team 7)")
+    root.title("Sistem Manajemen keuangan Pribadi")
 
     # Mengatur warna latar belakang
     root.configure(bg="#273c75")
 
     # Judul
     title_font = tkfont.Font(family="Courier New", size=36, weight="bold")
+    footer_font = tkfont.Font(family="Montserrat", size=8, weight="normal")
 
-    title_label = tk.Label(root, text="Team 7 Manajemen Keuangan Pribadi", bg="#273c75", fg="#ffffff", font=title_font)
+    title_label = tk.Label(root, text="Management Keuangan Pribadi", bg="#273c75", fg="#ffffff", font=title_font)
     title_label.pack(pady=10)
 
     frame_input = tk.Frame(root, bg="#273c75")
     frame_input.pack(pady=10)
 
-    tk.Label(frame_input, text="Kegiatan:", bg="#273c75", fg="#ffffff").grid(row=0, column=0, padx=5, pady=5)
-    entry_kegiatan = tk.Entry(frame_input, bg="#ffffff", fg="#000000")
-    entry_kegiatan.grid(row=0, column=1, padx=5, pady=5)
+    tk.Label(frame_input, text="Jumlah Uang", bg="#273c75", fg="#ffffff").grid(row=0, column=0, padx=5, pady=5)
+    entry_uang = tk.Entry(frame_input, bg="#ffffff", fg="#000000")
+    entry_uang.grid(row=0, column=1, padx=5, pady=5)
 
     tk.Label(frame_input, text="Tanggal:", bg="#273c75", fg="#ffffff").grid(row=1, column=0, padx=5, pady=5)
     entry_tanggal = tk.Entry(frame_input, bg="#ffffff", fg="#000000")
     entry_tanggal.grid(row=1, column=1, padx=5, pady=5)
-
-    tk.Label(frame_input, text="Waktu:", bg="#273c75", fg="#ffffff").grid(row=2, column=0, padx=5, pady=5)
-    entry_waktu = tk.Entry(frame_input, bg="#ffffff", fg="#000000")
-    entry_waktu.grid(row=2, column=1, padx=5, pady=5)
 
     tk.Label(frame_input, text="Deskripsi:", bg="#273c75", fg="#ffffff").grid(row=3, column=0, padx=5, pady=5)
     entry_deskripsi = tk.Entry(frame_input, bg="#ffffff", fg="#000000")
     entry_deskripsi.grid(row=3, column=1, padx=5, pady=5)
 
     tk.Button(root,
-              text="Tambah Jadwal",
-              command=tambah_jadwal,
+              text="Tambah Data",
+              command=tambah_data,
               bg="#74b9ff",
               fg="#000000").pack(pady=5)
     tk.Button(root,
-              text="Lihat Jadwal",
-              command=lihat_jadwal,
+              text="Lihat Data",
+              command=lihat_data,
               bg="#74b9ff",
               fg="#000000").pack(pady=5)
 
     frame_cari = tk.Frame(root, bg="#273c75")
     frame_cari.pack(pady=10)
 
-    tk.Label(frame_cari, text="Cari Jadwal:", bg="#273c75", fg="#ffffff").grid(row=0, column=0, padx=5, pady=5)
+    tk.Label(frame_cari, text="Cari Data:", bg="#273c75", fg="#ffffff").grid(row=0, column=0, padx=5, pady=5)
     entry_cari = tk.Entry(frame_cari, bg="#ffffff", fg="#000000")
     entry_cari.grid(row=0, column=1, padx=5, pady=5)
 
     tk.Button(frame_cari,
               text="Cari",
-              command=cari_jadwal,
+              command=cari_data,
               bg="#74b9ff",
               fg="#000000").grid(row=0, column=2, padx=5)
 
@@ -222,23 +230,29 @@ def show_gui():
               command=import_csv,
               bg="#74b9ff",
               fg="#000000").pack(pady=5)
+    
+    tk.Button(root,
+              text="Export dari CSV",
+              command=export_csv,
+              bg="#74b9ff",
+              fg="#000000").pack(pady=5)
 
     frame_hapus = tk.Frame(root, bg="#273c75")
     frame_hapus.pack(pady=10)
 
-    tk.Label(frame_hapus, text="Hapus Jadwal (ID):", bg="#273c75", fg="#ffffff").grid(row=0, column=0, padx=5, pady=5)
+    tk.Label(frame_hapus, text="Hapus Data (ID):", bg="#273c75", fg="#ffffff").grid(row=0, column=0, padx=5, pady=5)
     entry_hapus = tk.Entry(frame_hapus, bg="#ffffff", fg="#000000")
     entry_hapus.grid(row=0, column=1, padx=5, pady=5)
 
     tk.Button(frame_hapus,
               text="Hapus",
-              command=hapus_jadwal,
+              command=hapus_data,
               bg="#e74c3c",
               fg="#ffffff").grid(row=0, column=2, padx=5, pady=5)
 
     tk.Button(root,
-              text="Update Jadwal",
-              command=update_jadwal_popup,
+              text="Update Data",
+              command=update_data_popup,
               bg="#f39c12",
               fg="#ffffff").pack(pady=5)
 
@@ -248,6 +262,9 @@ def show_gui():
                           bg="#ffffff",
                           fg="#000000")
     output_text.pack(pady=10)
+
+    title_label = tk.Label(root, text="Kelompok 7 Responsi SDA", bg="#273c75", fg="#ffffff", font=footer_font)
+    title_label.pack(pady=10)
 
     root.mainloop()
 
